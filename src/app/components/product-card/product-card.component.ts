@@ -1,12 +1,12 @@
 import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
-import { Product } from "../product";
+import { Product } from "../../product";
 import { DatePipe, UpperCasePipe } from "@angular/common";
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
 import {MatCard, MatCardContent, MatCardHeader} from "@angular/material/card";
 import {MatCardTitle} from "@angular/material/card";
-import {ProductService} from "../service/product.service";
+import {ProductService} from "../../service/product.service";
 
 @Component({
   selector: 'app-product-card',
