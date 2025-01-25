@@ -1,26 +1,28 @@
-import { Component } from '@angular/core';
-import {MatFormField} from "@angular/material/form-field";
-import {MatLabel} from "@angular/material/form-field";
+import { Component, EventEmitter, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-search-bar',
-  imports: [
-    MatFormField,
-    MatLabel
-  ],
+  standalone: true,
   template: `
     <form class="example-form">
-      <mat-form-field class="example-full-width">
-        <mat-label>Favorite food</mat-label>
-        <input matInput placeholder="Ex. Pizza" value="Sushi">
-      </mat-form-field>
+      <input matInput 
+             class="border border-border p-3 rounded-full text-black" 
+             type="search" 
+             placeholder="Rechercher un personnage"
+             [(ngModel)]="searchContent"
+             [ngModelOptions]="{standalone: true}" 
+             (ngModelChange)="onSearch($event)"> <!-- Émission de l'événement -->
     </form>
-
   `,
+  imports: [FormsModule],
   styles: ``
 })
 export class SearchBarComponent {
+  @Output() searchEvent = new EventEmitter<string>();
+  searchContent: string = '';
 
+  onSearch(value: string) {
+    this.searchEvent.emit(value); // Émet la recherche dynamiquement
+  }
 }
-
-
