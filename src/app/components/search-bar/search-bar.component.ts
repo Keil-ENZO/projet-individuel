@@ -12,7 +12,7 @@ import { FormsModule } from '@angular/forms';
              placeholder="Rechercher un personnage"
              [(ngModel)]="searchContent"
              [ngModelOptions]="{standalone: true}" 
-             (ngModelChange)="onSearch($event)"> <!-- Émission de l'événement -->
+             (ngModelChange)="onSearch($event)">
     </form>
   `,
   imports: [FormsModule],
@@ -23,6 +23,6 @@ export class SearchBarComponent {
   searchContent: string = '';
 
   onSearch(value: string) {
-    this.searchEvent.emit(value); // Émet la recherche dynamiquement
+    this.searchEvent.emit(value);
   }
 }

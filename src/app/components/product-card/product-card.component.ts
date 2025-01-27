@@ -8,6 +8,7 @@ import {MatCard, MatCardContent, MatCardFooter, MatCardHeader} from "@angular/ma
 import {MatCardTitle} from "@angular/material/card";
 import {ProductService} from "../../service/product.service";
 import {Router} from "@angular/router";
+import {PanierService} from "../../service/panier.service";
 
 @Component({
   selector: 'app-product-card',
@@ -44,12 +45,15 @@ import {Router} from "@angular/router";
         
       <mat-card-footer class="flex flex-col gap-3">
 
-        @if (this.router.url === '/') {
         <button mat-fab extended color="primary" (click)="navigateToProduct(product.id)">
           <mat-icon>visibility</mat-icon>
           Voir le produit
         </button>
-        }
+        
+        <button mat-fab extended color="primary" (click)="addItemPanier()">
+            <mat-icon>add_shopping_cart</mat-icon>
+            Ajouter au panier
+        </button>
         
       </mat-card-footer>
     </mat-card>
@@ -58,20 +62,44 @@ import {Router} from "@angular/router";
   `,
   styles: []
 })
-export class ProductCardComponent {
+export class ProductCardComponent implements OnInit {
   @Input({ required: true }) product: Product = { id: 0, name: '', isFavorite: false, createdDate: new Date(), imgUrl: '' };
   @Output() addItemEvent = new EventEmitter<number>();
 
   productService = inject(ProductService);
   protected router = inject(Router);
+  private panierService: PanierService;
+
+  constructor(panierService: PanierService) {
+    this.panierService = panierService;
+  }
+
+  ngOnInit() {
+    let favProducts = JSON.parse(localStorage.getItem('favProducts') || '[]');
+    this.product.isFavorite = favProducts.some((p: Product) => p.id === this.product.id);
+  }
 
   makeFavorite() {
     this.productService.makeFavorite(this.product);
     this.addItemEvent.emit(this.product.isFavorite ? 1 : -1);
+    let favProducts = JSON.parse(localStorage.getItem('favProducts') || '[]');
+    if (this.product.isFavorite) {
+      favProducts.push(this.product);
+    } else {
+      favProducts = favProducts.filter((p: Product) => p.id !== this.product.id);
+    }
+    localStorage.setItem('favProducts', JSON.stringify(favProducts));
+
   }
 
   navigateToProduct(id: number) {
     this.router.navigate(['/product', id]);
+  }
+
+
+
+  addItemPanier() {
+    this.panierService.addProductToPanier(this.product);
   }
 
 }
