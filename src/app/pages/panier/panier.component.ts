@@ -3,7 +3,6 @@ import { CommonModule, DatePipe, UpperCasePipe } from '@angular/common';
 import { PanierService } from '../../service/panier.service';
 import { MatFabButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { Router } from '@angular/router';
 import { Product } from '../../product';
 import {FormsModule} from "@angular/forms";
 import {FormClientComponent} from "../../components/form-client/form-client.component";
@@ -21,11 +20,16 @@ import {FormClientComponent} from "../../components/form-client/form-client.comp
   ],
   template: `
     <main class="flex items-center justify-around">
-      
+
+      @if (products.length === 0) {
+        <h2 class="text-3xl m-5 p-5">Aucun produit ajouter a votre panier</h2>
+
+      } @else {
       <div>
-      <div>
-      <h2 class="text-3xl m-5 p-5">Votre panier</h2>
-      <div *ngFor="let product of products" class="p-5 flex flex-col md:flex-row gap-5 border rounded-md border-border m-3 justify-between items-center">
+        <h2 class="text-3xl m-5 p-5">Votre panier:</h2>
+
+        <div>
+        <div *ngFor="let product of products" class="p-5 flex flex-col md:flex-row gap-5 border rounded-md border-border m-3 justify-between items-center">
 
         <img mat-card-sm-image [src]="'assets/' + product.imgUrl" class="w-[100px] h-[150px]">
 
@@ -63,6 +67,7 @@ import {FormClientComponent} from "../../components/form-client/form-client.comp
         </div>
       </div>
       <app-form-client [totalPrice]="getTotal()"></app-form-client>
+      }
     </main>
   `,
   styles: ``

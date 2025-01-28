@@ -1,6 +1,6 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { Product } from '../../product';
-import {CurrencyPipe, DatePipe, NgIf, UpperCasePipe} from '@angular/common';
+import {CurrencyPipe, DatePipe, UpperCasePipe} from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
@@ -25,7 +25,6 @@ import { AddPanierComponent } from '../add-panier/add-panier.component';
     MatCardHeader,
     MatCardTitle,
     MatCardFooter,
-    NgIf,
     AddPanierComponent,
     CurrencyPipe
   ],
