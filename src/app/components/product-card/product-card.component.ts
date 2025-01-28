@@ -10,6 +10,7 @@ import { MatCardTitle } from '@angular/material/card';
 import { ProductService } from '../../service/product.service';
 import { FavoriteService } from '../../service/favorite.service';
 import { Router } from '@angular/router';
+import {AddPanierComponent} from "../add-panier/add-panier.component";
 
 @Component({
   selector: 'app-product-card',
@@ -25,11 +26,11 @@ import { Router } from '@angular/router';
     MatCardHeader,
     MatCardTitle,
     MatCardFooter,
-    MatCardSmImage,
-    NgIf
+    NgIf,
+    AddPanierComponent
   ],
   template: `
-    <mat-card appearance="outlined" class="m-3 p-5 flex flex-col justify-between items-center w-[300px] h-[450px]">
+    <mat-card appearance="outlined" class="m-3 p-5 flex flex-col justify-between items-center w-[350px] h-[500px]">
       <div class="flex justify-end w-full">
         <button mat-fab (click)="toggleFavorite()">
           <mat-icon>{{ isFavorite ? 'favorite' : 'favorite_border' }}</mat-icon>
@@ -37,7 +38,7 @@ import { Router } from '@angular/router';
       </div>
 
       <mat-card-header class="flex flex-col-reverse justify-center items-center">
-        <img mat-card-sm-image [src]="'assets/' + product.imgUrl" class="w-[100px] h-[150px]">
+        <img [src]="'assets/' + product.imgUrl" class="w-[100px] h-[150px]">
         <mat-card-title>{{ product.name | uppercase }}</mat-card-title>
       </mat-card-header>
 
@@ -50,6 +51,8 @@ import { Router } from '@angular/router';
           <mat-icon>visibility</mat-icon>
           Voir le produit
         </button>
+        
+        <app-add-panier [product]="product"></app-add-panier>
       </mat-card-footer>
     </mat-card>
   `,
