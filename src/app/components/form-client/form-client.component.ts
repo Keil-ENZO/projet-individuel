@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, Input} from '@angular/core';
 import { FormControl, ReactiveFormsModule, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogOverviewExampleDialog } from '../dialog-commande/dialog-commande.component';
@@ -34,6 +34,8 @@ export class FormClientComponent {
     adresse: new FormControl('', Validators.required),
   });
 
+  @Input() totalPrice: number = 0;
+
   constructor(public dialog: MatDialog) {}
 
   openDialog() {
@@ -44,6 +46,7 @@ export class FormClientComponent {
         name: formData.name,
         mail: formData.mail,
         adresse: formData.adresse,
+        totalPrice: this.totalPrice
       },
     });
 

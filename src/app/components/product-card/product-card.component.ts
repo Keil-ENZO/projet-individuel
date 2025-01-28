@@ -1,7 +1,6 @@
-// src/app/components/product-card/product-card.component.ts
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { Product } from '../../product';
-import {DatePipe, NgIf, UpperCasePipe} from '@angular/common';
+import {CurrencyPipe, DatePipe, NgIf, UpperCasePipe} from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,7 +9,7 @@ import { MatCardTitle } from '@angular/material/card';
 import { ProductService } from '../../service/product.service';
 import { FavoriteService } from '../../service/favorite.service';
 import { Router } from '@angular/router';
-import {AddPanierComponent} from "../add-panier/add-panier.component";
+import { AddPanierComponent } from '../add-panier/add-panier.component';
 
 @Component({
   selector: 'app-product-card',
@@ -27,7 +26,8 @@ import {AddPanierComponent} from "../add-panier/add-panier.component";
     MatCardTitle,
     MatCardFooter,
     NgIf,
-    AddPanierComponent
+    AddPanierComponent,
+    CurrencyPipe
   ],
   template: `
     <mat-card appearance="outlined" class="m-3 p-5 flex flex-col justify-between items-center w-[350px] h-[500px]">
@@ -44,6 +44,7 @@ import {AddPanierComponent} from "../add-panier/add-panier.component";
 
       <mat-card-content>
         <p>{{ product.createdDate | date:'fullDate' : '' : 'fr-FR' }}</p>
+        <p>{{ product.prix | currency:'EUR' }}</p>
       </mat-card-content>
 
       <mat-card-footer class="flex flex-col gap-3">
@@ -51,7 +52,7 @@ import {AddPanierComponent} from "../add-panier/add-panier.component";
           <mat-icon>visibility</mat-icon>
           Voir le produit
         </button>
-        
+
         <app-add-panier [product]="product"></app-add-panier>
       </mat-card-footer>
     </mat-card>
@@ -59,7 +60,7 @@ import {AddPanierComponent} from "../add-panier/add-panier.component";
   styles: []
 })
 export class ProductCardComponent {
-  @Input({ required: true }) product: Product = { id: 0, name: '', isFavorite: false, createdDate: new Date(), imgUrl: '' };
+  @Input({ required: true }) product: Product = { id: 0, prix: 0, name: '', isFavorite: false, createdDate: new Date(), imgUrl: '' };
   @Output() addItemEvent = new EventEmitter<number>();
 
   productService = inject(ProductService);

@@ -23,6 +23,7 @@ import {FormClientComponent} from "../../components/form-client/form-client.comp
     <main class="flex items-center justify-around">
       
       <div>
+      <div>
       <h2 class="text-3xl m-5 p-5">Votre panier</h2>
       <div *ngFor="let product of products" class="p-5 flex flex-col md:flex-row gap-5 border rounded-md border-border m-3 justify-between items-center">
 
@@ -31,6 +32,7 @@ import {FormClientComponent} from "../../components/form-client/form-client.comp
         <div>
           <h2>{{ product.name | uppercase }}</h2>
           <p>{{ product.createdDate | date:'fullDate' : '' : 'fr-FR' }}</p>
+          <p>{{ product.prix | currency:'EUR' }}</p>
         </div>
 
         <div class="flex gap-3 items-center">
@@ -56,8 +58,11 @@ import {FormClientComponent} from "../../components/form-client/form-client.comp
         </button>
       </div>
       </div>
-
-      <app-form-client></app-form-client>
+        <div class="mx-24 p-5 flex justify-end">
+          <h3 class="text-2xl">Total: {{ getTotal() | currency:'EUR' }}</h3>
+        </div>
+      </div>
+      <app-form-client [totalPrice]="getTotal()"></app-form-client>
     </main>
   `,
   styles: ``
@@ -82,5 +87,9 @@ export class PanierComponent implements OnInit {
   deleteProduct(product: Product) {
     this.panierService.removeProductFromPanier(product);
     this.products = this.panierService.getPanier();
+  }
+
+  getTotal(): number {
+    return this.products.reduce((total, product) => total + (product.prix * (product.quantite ?? 1)), 0);
   }
 }

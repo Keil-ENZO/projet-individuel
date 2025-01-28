@@ -9,11 +9,13 @@ import {
 import { FormsModule } from '@angular/forms';
 import {MatInputModule} from "@angular/material/input";
 import {MatFormFieldModule} from "@angular/material/form-field";
+import {CurrencyPipe} from "@angular/common";
 
 export interface DialogData {
   name: string;
   mail: string;
   adresse: string;
+  totalPrice: number;
 }
 
 @Component({
@@ -25,6 +27,7 @@ export interface DialogData {
       <p><strong>Nom:</strong> {{ data.name }}</p>
       <p><strong>Email:</strong> {{ data.mail }}</p>
       <p><strong>Adresse de Livraison:</strong> {{ data.adresse }}</p>
+      <p><strong>Prix Total:</strong> {{ data.totalPrice | currency:'EUR' }}</p>
     </mat-dialog-content>
     <mat-dialog-actions class="flex gap-3">
       <button mat-button (click)="onNoClick()">Annuler</button>
@@ -33,7 +36,7 @@ export interface DialogData {
 
     </div>
   `,
-  imports: [MatFormFieldModule, MatInputModule, FormsModule, MatDialogContent, MatDialogActions, MatDialogClose],
+  imports: [MatFormFieldModule, MatInputModule, FormsModule, MatDialogContent, MatDialogActions, MatDialogClose, CurrencyPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DialogOverviewExampleDialog {

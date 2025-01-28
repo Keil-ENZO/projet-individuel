@@ -2,7 +2,7 @@ import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/c
 import {Product} from "../../product";
 import {ProductService} from "../../service/product.service";
 import {ActivatedRoute} from "@angular/router";
-import {DatePipe, UpperCasePipe} from "@angular/common";
+import {CurrencyPipe, DatePipe, UpperCasePipe} from "@angular/common";
 import {MatFabButton} from "@angular/material/button";
 import {MatIcon} from "@angular/material/icon";
 import {AddPanierComponent} from "../../components/add-panier/add-panier.component";
@@ -14,7 +14,8 @@ import {AddPanierComponent} from "../../components/add-panier/add-panier.compone
     MatFabButton,
     MatIcon,
     UpperCasePipe,
-    AddPanierComponent
+    AddPanierComponent,
+    CurrencyPipe
   ],
   template: `
     <main class="flex justify-center mb-32">
@@ -31,6 +32,7 @@ import {AddPanierComponent} from "../../components/add-panier/add-panier.compone
 
         <h2 class="text-xl">{{ product.name | uppercase }}</h2>
         <p>{{ product.createdDate | date:'fullDate' : '' : 'fr-FR' }}</p>
+        <p>{{ product.prix | currency:'EUR' }}</p>
         <app-add-panier [product]="product"></app-add-panier>
 
       </div>
@@ -41,7 +43,9 @@ import {AddPanierComponent} from "../../components/add-panier/add-panier.compone
   styles: ``
 })
 export class ProductListDetailComponent implements OnInit {
-  @Input({ required: true }) product: Product = { id: 0, name: '', isFavorite: false, createdDate: new Date(), imgUrl: '' };
+  @Input({ required: true }) product: Product = {
+    prix: 0,
+    id: 0, name: '', isFavorite: false, createdDate: new Date(), imgUrl: '' };
   @Output() addItemEvent = new EventEmitter<number>();
 
   productService = inject(ProductService);
