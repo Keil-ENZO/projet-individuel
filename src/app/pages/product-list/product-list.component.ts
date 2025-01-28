@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Output} from '@angular/core';
+import {Component, EventEmitter, inject, OnInit, Output} from '@angular/core';
 import {MatFormField, MatLabel} from "@angular/material/form-field";
 import {MatOption} from "@angular/material/core";
 import {MatSelect} from "@angular/material/select";
@@ -8,6 +8,7 @@ import {SortByNamePipe} from "../../pipe/sort-by-name.pipe";
 import {ProductService} from "../../service/product.service";
 import {FormsModule} from "@angular/forms";
 import {SearchBarComponent} from "../../components/search-bar/search-bar.component";
+import {FavoriteService} from "../../service/favorite.service";
 
 @Component({
   selector: 'app-product-list',
@@ -64,7 +65,8 @@ import {SearchBarComponent} from "../../components/search-bar/search-bar.compone
   `,
   styles: ``
 })
-export class ProductListComponent {
+export class ProductListComponent implements OnInit {
+
   @Output() searchEvent = new EventEmitter<string>();
 
   filter: { type: string; asc: boolean } = { type: '', asc: true };
@@ -73,6 +75,7 @@ export class ProductListComponent {
   productService = inject(ProductService);
   products = this.productService.getProducts();
   filteredProducts = [...this.products];
+  private favoriteService: FavoriteService;
 
   addItem(event: number) {
     this.countFav += event;
@@ -84,5 +87,17 @@ export class ProductListComponent {
       this.filteredProducts = this.products.filter(p =>
           p.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
+  }
+
+  constructor(favoriteService: FavoriteService) {
+    this.favoriteService = favoriteService;
+  }
+
+  ngOnInit(): void {
+    const favorites = this.favoriteService.getFavorites();
+    this.products.forEach(product => {
+      product.isFavorite = favorites.some(fav => fav.id === product.id);
+    });
+    this.filteredProducts = [...this.products];
   }
 }
