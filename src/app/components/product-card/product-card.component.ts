@@ -9,6 +9,7 @@ import {MatCardTitle} from "@angular/material/card";
 import {ProductService} from "../../service/product.service";
 import {Router} from "@angular/router";
 import {PanierService} from "../../service/panier.service";
+import {AddPanierComponent} from "../add-panier/add-panier.component";
 
 @Component({
   selector: 'app-product-card',
@@ -23,11 +24,12 @@ import {PanierService} from "../../service/panier.service";
     MatCard,
     MatCardHeader,
     MatCardTitle,
-    MatCardFooter
+    MatCardFooter,
+    AddPanierComponent
   ],
   template: `
 
-    <mat-card appearance="outlined" class="m-3 p-5 flex flex-col justify-between items-center w-[300px] h-[450px]">
+    <mat-card appearance="outlined" class="m-3 p-5 flex flex-col justify-between items-center w-[350px] h-[500px]">
       <div class="flex justify-end w-full">
         <button mat-fab  (click)="makeFavorite()">
           <mat-icon>{{ product.isFavorite ? 'favorite' : 'favorite_border' }}</mat-icon>
@@ -49,11 +51,9 @@ import {PanierService} from "../../service/panier.service";
           <mat-icon>visibility</mat-icon>
           Voir le produit
         </button>
-        
-        <button mat-fab extended color="primary" (click)="addItemPanier()">
-            <mat-icon>add_shopping_cart</mat-icon>
-            Ajouter au panier
-        </button>
+
+        <app-add-panier [product]="product"></app-add-panier>
+      
         
       </mat-card-footer>
     </mat-card>
@@ -68,11 +68,7 @@ export class ProductCardComponent implements OnInit {
 
   productService = inject(ProductService);
   protected router = inject(Router);
-  private panierService: PanierService;
 
-  constructor(panierService: PanierService) {
-    this.panierService = panierService;
-  }
 
   ngOnInit() {
     let favProducts = JSON.parse(localStorage.getItem('favProducts') || '[]');
@@ -95,11 +91,4 @@ export class ProductCardComponent implements OnInit {
   navigateToProduct(id: number) {
     this.router.navigate(['/product', id]);
   }
-
-
-
-  addItemPanier() {
-    this.panierService.addProductToPanier(this.product);
-  }
-
 }

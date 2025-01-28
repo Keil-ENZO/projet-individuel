@@ -1,94 +1,75 @@
 import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { CommonModule, DatePipe, UpperCasePipe } from '@angular/common';
 import { PanierService } from '../../service/panier.service';
-import { MatCard, MatCardContent, MatCardFooter, MatCardHeader, MatCardTitle } from '@angular/material/card';
 import { MatFabButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { Product } from '../../product';
-import { ProductService } from '../../service/product.service';
+import {FormsModule} from "@angular/forms";
 
 @Component({
   selector: 'app-panier',
   imports: [
     CommonModule,
     DatePipe,
-    MatCard,
-    MatCardContent,
-    MatCardFooter,
-    MatCardHeader,
-    MatCardTitle,
     MatFabButton,
     MatIcon,
-    UpperCasePipe
+    UpperCasePipe,
+    FormsModule
   ],
   template: `
-    <mat-card *ngFor="let product of products" appearance="outlined" class="m-3 p-5 flex flex-col justify-between items-center w-[300px] h-[450px]">
-        <div class="flex justify-end w-full">
-          <button mat-fab (click)="makeFavorite(product)">
-            <mat-icon>{{ product.isFavorite ? 'favorite' : 'favorite_border' }}</mat-icon>
+    <main>
+      <h2 class="text-3xl m-5 p-5">Votre panier</h2>
+      <div *ngFor="let product of products" class="mx-24 p-5 flex flex-col md:flex-row gap-5 border rounded-md border-border m-3 justify-between items-center">
+
+        <img mat-card-sm-image [src]="'assets/' + product.imgUrl" class="w-[100px] h-[150px]">
+
+        <div>
+          <h2>{{ product.name | uppercase }}</h2>
+          <p>{{ product.createdDate | date:'fullDate' : '' : 'fr-FR' }}</p>
+        </div>
+
+        <div class="flex gap-3 items-center">
+          <button mat-mini-fab color="primary" (click)="updateQuantity(product, (product.quantite ?? 0) - 1)">
+            <mat-icon>remove</mat-icon>
+          </button>
+
+          <input
+              [(ngModel)]="product.quantite"
+              class="p-2 w-14 text-center border border-border rounded-full text-black"
+              type="number"
+              min="1"
+              (change)="updateQuantity(product, product.quantite ?? 0)"          >
+
+          <button mat-mini-fab color="primary" (click)="updateQuantity(product, (product.quantite ?? 0) + 1)">
+            <mat-icon>add</mat-icon>
           </button>
         </div>
 
-        <mat-card-header class="flex flex-col-reverse justify-center items-center">
-          <img mat-card-sm-image [src]="'assets/' + product.imgUrl" class="w-[100px] h-[150px]">
-          <mat-card-title>{{ product.name | uppercase }}</mat-card-title>
-        </mat-card-header>
-
-        <mat-card-content>
-          <p>{{ product.createdDate | date:'fullDate' : '' : 'fr-FR' }}</p>
-        </mat-card-content>
-
-        <mat-card-footer class="flex flex-col gap-3">
-          <button mat-fab extended color="primary" (click)="navigateToProduct(product.id)">
-            <mat-icon>visibility</mat-icon>
-            Voir le produit
-          </button>
-          
-            <button mat-fab extended color="primary" (click)="deleteProduct(product)">
-                <mat-icon>delete</mat-icon>
-                Supprimer
-            </button>
-        </mat-card-footer>
-    </mat-card>
+        <button mat-fab extended color="primary" (click)="deleteProduct(product)">
+          <mat-icon>delete</mat-icon>
+          Supprimer
+        </button>
+      </div>
+    </main>
   `,
   styles: ``
 })
 export class PanierComponent implements OnInit {
-
-  private panierService: PanierService;
-  protected router = inject(Router);
-  @Output() addItemEvent = new EventEmitter<number>();
-
   products: Product[] = [];
 
-  constructor(panierService: PanierService) {
-    this.panierService = panierService;
-  }
+  constructor(private panierService: PanierService) {}
 
   ngOnInit(): void {
     this.products = this.panierService.getPanier();
-
-    let favProducts = JSON.parse(localStorage.getItem('favProducts') || '[]');
-    this.products.forEach(product => {
-      product.isFavorite = favProducts.some((p: Product) => p.id === product.id);
-    });
   }
 
-  navigateToProduct(id: number) {
-    this.router.navigate(['/product', id]);
-  }
-
-  makeFavorite(product: Product) {
-    product.isFavorite = !product.isFavorite;
-    this.addItemEvent.emit(product.isFavorite ? 1 : -1);
-    let favProducts = JSON.parse(localStorage.getItem('favProducts') || '[]');
-    if (product.isFavorite) {
-      favProducts.push(product);
-    } else {
-      favProducts = favProducts.filter((p: Product) => p.id !== product.id);
+  updateQuantity(product: Product, newQuantity: number) {
+    if (newQuantity < 1) {
+      newQuantity = 1;
     }
-    localStorage.setItem('favProducts', JSON.stringify(favProducts));
+    this.panierService.updateProductQuantity(product.id, newQuantity);
+    this.products = this.panierService.getPanier();
   }
 
   deleteProduct(product: Product) {

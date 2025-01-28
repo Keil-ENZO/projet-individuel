@@ -5,6 +5,7 @@ import {ActivatedRoute} from "@angular/router";
 import {DatePipe, UpperCasePipe} from "@angular/common";
 import {MatFabButton} from "@angular/material/button";
 import {MatIcon} from "@angular/material/icon";
+import {AddPanierComponent} from "../../components/add-panier/add-panier.component";
 
 @Component({
   selector: 'app-product-list-detail',
@@ -12,7 +13,8 @@ import {MatIcon} from "@angular/material/icon";
     DatePipe,
     MatFabButton,
     MatIcon,
-    UpperCasePipe
+    UpperCasePipe,
+    AddPanierComponent
   ],
   template: `
     <main class="flex justify-center mb-32">
@@ -29,7 +31,10 @@ import {MatIcon} from "@angular/material/icon";
 
         <h2 class="text-xl">{{ product.name | uppercase }}</h2>
         <p>{{ product.createdDate | date:'fullDate' : '' : 'fr-FR' }}</p>
+        <app-add-panier [product]="product"></app-add-panier>
+
       </div>
+
 
     </main>
   `,

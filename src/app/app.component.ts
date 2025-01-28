@@ -13,7 +13,7 @@ import {ProductService} from "./service/product.service";
     HeaderComponent
   ],
   template: `
-    <div class="bg-gray-100 h-screen flex justify-between flex-col">
+    <div class="h-screen flex justify-between flex-col">
 
       <app-header></app-header>
       
