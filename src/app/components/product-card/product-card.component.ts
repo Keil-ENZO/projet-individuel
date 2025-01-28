@@ -48,7 +48,7 @@ import { AddPanierComponent } from '../add-panier/add-panier.component';
       </mat-card-content>
 
       <mat-card-footer class="flex flex-col gap-3">
-        <button *ngIf="router.url === '/'" mat-fab extended color="primary" (click)="navigateToProduct(product.id)">
+        <button mat-fab extended color="primary" (click)="navigateToProduct(product.id)">
           <mat-icon>visibility</mat-icon>
           Voir le produit
         </button>
