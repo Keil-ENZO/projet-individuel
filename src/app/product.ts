@@ -5,4 +5,5 @@ export interface Product {
     createdDate: Date;
     imgUrl: string;
     quantite?: number;
+    prix: number;
 }

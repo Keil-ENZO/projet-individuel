@@ -1,11 +1,11 @@
 import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
-import { CommonModule, DatePipe, UpperCasePipe } from '@angular/common';
+import { CommonModule, DatePipe, UpperCasePipe, CurrencyPipe } from '@angular/common';
 import { PanierService } from '../../service/panier.service';
 import { MatFabButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { Product } from '../../product';
-import {FormsModule} from "@angular/forms";
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-panier',
@@ -15,7 +15,8 @@ import {FormsModule} from "@angular/forms";
     MatFabButton,
     MatIcon,
     UpperCasePipe,
-    FormsModule
+    FormsModule,
+    CurrencyPipe
   ],
   template: `
     <main>
@@ -27,6 +28,7 @@ import {FormsModule} from "@angular/forms";
         <div>
           <h2>{{ product.name | uppercase }}</h2>
           <p>{{ product.createdDate | date:'fullDate' : '' : 'fr-FR' }}</p>
+          <p>{{ product.prix | currency:'EUR' }}</p>
         </div>
 
         <div class="flex gap-3 items-center">
@@ -50,6 +52,10 @@ import {FormsModule} from "@angular/forms";
           <mat-icon>delete</mat-icon>
           Supprimer
         </button>
+      </div>
+
+      <div class="mx-24 p-5 flex justify-end">
+        <h3 class="text-2xl">Total: {{ getTotal() | currency:'EUR' }}</h3>
       </div>
     </main>
   `,
@@ -75,5 +81,9 @@ export class PanierComponent implements OnInit {
   deleteProduct(product: Product) {
     this.panierService.removeProductFromPanier(product);
     this.products = this.panierService.getPanier();
+  }
+
+  getTotal(): number {
+    return this.products.reduce((total, product) => total + (product.prix * (product.quantite ?? 1)), 0);
   }
 }
