@@ -2,7 +2,6 @@ import {Component, inject} from '@angular/core';
 import {RouterOutlet} from "@angular/router";
 import {FooterComponent} from "./layout/Footer";
 import {HeaderComponent} from "./layout/Header";
-import {ProductService} from "./service/product.service";
 
 
 @Component({
