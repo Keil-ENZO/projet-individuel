@@ -1,14 +1,18 @@
-import {Component, EventEmitter, inject, OnInit, Output} from '@angular/core';
-import {MatFormField, MatLabel} from "@angular/material/form-field";
-import {MatOption} from "@angular/material/core";
-import {MatSelect} from "@angular/material/select";
-import {ProductCardComponent} from "../../components/product-card/product-card.component";
-import {SortByDatePipe} from "../../pipe/sort-by-date-pipe.pipe";
-import {SortByNamePipe} from "../../pipe/sort-by-name.pipe";
-import {ProductService} from "../../service/product.service";
-import {FormsModule} from "@angular/forms";
-import {SearchBarComponent} from "../../components/search-bar/search-bar.component";
-import {FavoriteService} from "../../service/favorite.service";
+// src/app/pages/product-list/product-list.component.ts
+import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import { MatFormField, MatLabel } from "@angular/material/form-field";
+import { MatOption } from "@angular/material/core";
+import { MatSelect } from "@angular/material/select";
+import { ProductCardComponent } from "../../components/product-card/product-card.component";
+import { SortByDatePipe } from "../../pipe/sort-by-date-pipe.pipe";
+import { SortByNamePipe } from "../../pipe/sort-by-name.pipe";
+import { ProductService } from "../../service/product.service";
+import { FormsModule } from "@angular/forms";
+import { SearchBarComponent } from "../../components/search-bar/search-bar.component";
+import { FavoriteService } from "../../service/favorite.service";
+import { SearchPipe } from '../../pipe/search.pipe';
+import {Product} from "../../product";
+import {NgForOf, NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-product-list',
@@ -21,47 +25,42 @@ import {FavoriteService} from "../../service/favorite.service";
     SortByDatePipe,
     SortByNamePipe,
     FormsModule,
-    SearchBarComponent
+    SearchBarComponent,
+    SearchPipe,
+    NgIf,
+    NgForOf
   ],
   template: `
+    <main class="p-3 mt-20">
+      <div class="flex justify-between items-center md:mx-32">
+        <app-search-bar (searchEvent)="onSearch($event)"></app-search-bar>
 
-
-      <main class="p-3 mt-20">
-        <div class="flex justify-between items-center md:mx-32">
-            <app-search-bar (searchEvent)="onSearch($event)"></app-search-bar>
-          
-          <div class="flex">
-            <mat-form-field>
-              <mat-label>Filtres</mat-label>
-              <mat-select [(ngModel)]="filter">
-                <mat-option [value]="{ type: 'date', asc: true }">Date asc</mat-option>
-                <mat-option [value]="{ type: 'date', asc: false }">Date desc</mat-option>
-                <mat-option [value]="{ type: 'name', asc: true }">Nom A-Z</mat-option>
-                <mat-option [value]="{ type: 'name', asc: false }">Nom Z-A</mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
+        <div class="flex">
+          <mat-form-field>
+            <mat-label>Filtres</mat-label>
+            <mat-select [(ngModel)]="filter">
+              <mat-option [value]="{ type: 'date', asc: true }">Date asc</mat-option>
+              <mat-option [value]="{ type: 'date', asc: false }">Date desc</mat-option>
+              <mat-option [value]="{ type: 'name', asc: true }">Nom A-Z</mat-option>
+              <mat-option [value]="{ type: 'name', asc: false }">Nom Z-A</mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
+      </div>
 
-        <div class="flex flex-wrap justify-center">
-          @if (filteredProducts.length === 0) {
-            <p class="text-gray-500">Aucun résultat trouvé.</p>
-          } @else if (filter.type === 'date') {
-            @for (p of (filteredProducts | SortByDatePipe:filter.asc); track p.id) {
-              <app-product-card [product]=p (addItemEvent)="addItem($event)"/>
-            }
-          } @else if (filter.type === 'name') {
-            @for (p of (filteredProducts | SortByNamePipe:filter.asc); track p.id) {
-              <app-product-card [product]=p (addItemEvent)="addItem($event)"/>
-            }
-          } @else {
-            @for (p of filteredProducts; track p.id) {
-              <app-product-card [product]=p (addItemEvent)="addItem($event)"/>
-            }
-          }
-        </div>
-      </main>
-
+      <div class="flex flex-wrap justify-center">
+        <p *ngIf="filteredProducts.length === 0" class="text-gray-500">Aucun résultat trouvé.</p>
+        <ng-container *ngIf="filter.type === 'date'">
+          <app-product-card *ngFor="let p of (filteredProducts | search:SearchContent | SortByDatePipe:filter.asc); trackBy: trackById" [product]="p" (addItemEvent)="addItem($event)"></app-product-card>
+        </ng-container>
+        <ng-container *ngIf="filter.type === 'name'">
+          <app-product-card *ngFor="let p of (filteredProducts | search:SearchContent | SortByNamePipe:filter.asc); trackBy: trackById" [product]="p" (addItemEvent)="addItem($event)"></app-product-card>
+        </ng-container>
+        <ng-container *ngIf="filter.type === ''">
+          <app-product-card *ngFor="let p of (filteredProducts | search:SearchContent); trackBy: trackById" [product]="p" (addItemEvent)="addItem($event)"></app-product-card>
+        </ng-container>
+      </div>
+    </main>
   `,
   styles: ``
 })
@@ -83,10 +82,7 @@ export class ProductListComponent implements OnInit {
 
   onSearch(searchTerm: string) {
     this.searchEvent.emit(searchTerm);
-      this.SearchContent = searchTerm;
-      this.filteredProducts = this.products.filter(p =>
-          p.name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+    this.SearchContent = searchTerm;
   }
 
   constructor(favoriteService: FavoriteService) {
@@ -99,5 +95,9 @@ export class ProductListComponent implements OnInit {
       product.isFavorite = favorites.some(fav => fav.id === product.id);
     });
     this.filteredProducts = [...this.products];
+  }
+
+  trackById(index: number, item: Product) {
+    return item.id;
   }
 }
