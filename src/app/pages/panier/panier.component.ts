@@ -1,14 +1,14 @@
-import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
-import { CommonModule, DatePipe, UpperCasePipe } from '@angular/common';
-import { PanierService } from '../../service/panier.service';
-import { MatFabButton } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
-import { Product } from '../../product';
-import {FormsModule} from "@angular/forms";
-import {FormClientComponent} from "../../components/form-client/form-client.component";
+import { CommonModule, DatePipe, UpperCasePipe } from "@angular/common";
+import { Component, OnInit } from "@angular/core";
+import { FormsModule } from "@angular/forms";
+import { MatFabButton } from "@angular/material/button";
+import { MatIcon } from "@angular/material/icon";
+import { FormClientComponent } from "../../components/form-client/form-client.component";
+import { Product } from "../../product";
+import { PanierService } from "../../service/panier.service";
 
 @Component({
-  selector: 'app-panier',
+  selector: "app-panier",
   imports: [
     CommonModule,
     DatePipe,
@@ -16,61 +16,80 @@ import {FormClientComponent} from "../../components/form-client/form-client.comp
     MatIcon,
     UpperCasePipe,
     FormsModule,
-    FormClientComponent
+    FormClientComponent,
   ],
   template: `
     <main class="flex items-center justify-around">
-
       @if (products.length === 0) {
-        <h2 class="text-3xl m-5 p-5">Aucun produit ajouter a votre panier</h2>
+      <h2 class="text-3xl m-5 p-5">Aucun produit ajouter a votre panier</h2>
 
       } @else {
       <div>
         <h2 class="text-3xl m-5 p-5">Votre panier:</h2>
 
         <div>
-        <div *ngFor="let product of products" class="p-5 flex flex-col md:flex-row gap-5 border rounded-md border-border m-3 justify-between items-center">
+          <div
+            *ngFor="let product of products"
+            class="p-5 flex flex-col md:flex-row gap-5 border rounded-md border-border m-3 justify-between items-center"
+          >
+            <img
+              mat-card-sm-image
+              [src]="'assets/' + product.imgUrl"
+              class="w-[100px] h-[150px]"
+            />
 
-        <img mat-card-sm-image [src]="'assets/' + product.imgUrl" class="w-[100px] h-[150px]">
+            <div>
+              <h2>{{ product.name | uppercase }}</h2>
 
-        <div>
-          <h2>{{ product.name | uppercase }}</h2>
-          <p>{{ product.createdDate | date:'fullDate' : '' : 'fr-FR' }}</p>
-          <p>{{ product.prix | currency:'EUR' }}</p>
+              <p>{{ product.middlePrice | currency : "EUR" }}</p>
+            </div>
+
+            <div class="flex gap-3 items-center">
+              <button
+                mat-mini-fab
+                color="primary"
+                (click)="updateQuantity(product, (product.quantite ?? 0) - 1)"
+              >
+                <mat-icon>remove</mat-icon>
+              </button>
+
+              <input
+                [(ngModel)]="product.quantite"
+                class="p-2 w-14 text-center border border-border rounded-full text-black"
+                type="number"
+                min="1"
+                (change)="updateQuantity(product, product.quantite ?? 0)"
+              />
+
+              <button
+                mat-mini-fab
+                color="primary"
+                (click)="updateQuantity(product, (product.quantite ?? 0) + 1)"
+              >
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+
+            <button
+              mat-fab
+              extended
+              color="primary"
+              (click)="deleteProduct(product)"
+            >
+              <mat-icon>delete</mat-icon>
+              Supprimer
+            </button>
+          </div>
         </div>
-
-        <div class="flex gap-3 items-center">
-          <button mat-mini-fab color="primary" (click)="updateQuantity(product, (product.quantite ?? 0) - 1)">
-            <mat-icon>remove</mat-icon>
-          </button>
-
-          <input
-              [(ngModel)]="product.quantite"
-              class="p-2 w-14 text-center border border-border rounded-full text-black"
-              type="number"
-              min="1"
-              (change)="updateQuantity(product, product.quantite ?? 0)">
-
-          <button mat-mini-fab color="primary" (click)="updateQuantity(product, (product.quantite ?? 0) + 1)">
-            <mat-icon>add</mat-icon>
-          </button>
-        </div>
-
-        <button mat-fab extended color="primary" (click)="deleteProduct(product)">
-          <mat-icon>delete</mat-icon>
-          Supprimer
-        </button>
-      </div>
-      </div>
         <div class="mx-24 p-5 flex justify-end">
-          <h3 class="text-2xl">Total: {{ getTotal() | currency:'EUR' }}</h3>
+          <h3 class="text-2xl">Total: {{ getTotal() | currency : "EUR" }}</h3>
         </div>
       </div>
       <app-form-client [totalPrice]="getTotal()"></app-form-client>
       }
     </main>
   `,
-  styles: ``
+  styles: ``,
 })
 export class PanierComponent implements OnInit {
   products: Product[] = [];
@@ -95,6 +114,9 @@ export class PanierComponent implements OnInit {
   }
 
   getTotal(): number {
-    return this.products.reduce((total, product) => total + (product.prix * (product.quantite ?? 1)), 0);
+    return this.products.reduce(
+      (total, product) => total + product.middlePrice * (product.quantite ?? 1),
+      0
+    );
   }
 }
