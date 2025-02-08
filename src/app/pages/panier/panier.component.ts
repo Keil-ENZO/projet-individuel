@@ -34,7 +34,7 @@ import { PanierService } from "../../service/panier.service";
           >
             <img
               mat-card-sm-image
-              [src]="'assets/' + product.imgUrl"
+              [src]="product.imgUrl"
               class="w-[100px] h-[150px]"
             />
 
@@ -85,7 +85,10 @@ import { PanierService } from "../../service/panier.service";
           <h3 class="text-2xl">Total: {{ getTotal() | currency : "EUR" }}</h3>
         </div>
       </div>
-      <app-form-client [totalPrice]="getTotal()"></app-form-client>
+      <app-form-client
+        [totalPrice]="getTotal()"
+        (panierCleared)="refreshPanier()"
+      ></app-form-client>
       }
     </main>
   `,
@@ -118,5 +121,12 @@ export class PanierComponent implements OnInit {
       (total, product) => total + product.middlePrice * (product.quantite ?? 1),
       0
     );
+  }
+
+  refreshPanier() {
+    this.products = [];
+    setTimeout(() => {
+      this.products = this.panierService.getPanier();
+    }, 0);
   }
 }
