@@ -36,7 +36,7 @@ import { AddPanierComponent } from "../add-panier/add-panier.component";
   template: `
     <mat-card
       appearance="outlined"
-      class="m-3 p-5 flex flex-col justify-between items-center w-[350px] h-[500px]"
+      class="m-3 p-5 flex flex-col justify-between h-full"
     >
       <div class="flex justify-end w-full">
         <button mat-fab (click)="toggleFavorite()">
@@ -48,15 +48,26 @@ import { AddPanierComponent } from "../add-panier/add-panier.component";
         class="flex flex-col-reverse justify-center items-center"
       >
         <img [src]="product.imgUrl" class="w-[200px] h-[280px]" />
-        <mat-card-title>{{ product.name | uppercase }}</mat-card-title>
       </mat-card-header>
 
-      <mat-card-content class="text-center">
-        <p>HP: {{ product.hp }}</p>
-        <p>Attaque: {{ product.attaque }}</p>
-        <p>Type: {{ product.type.join(", ") }}</p>
-        <p>Rareté: {{ product.rarity }}</p>
-        <p>Prix: {{ product.middlePrice | currency : "EUR" }}</p>
+      <mat-card-content class="mt-5">
+        <div class="flex justify-between items-center leading-5">
+          <mat-card-title class="truncate">{{
+            product.name.length > 12
+              ? product.name.slice(0, 12) + "..."
+              : (product.name | uppercase)
+          }}</mat-card-title>
+          <p>Prix: {{ product.middlePrice | currency : "EUR" }}</p>
+        </div>
+
+        <div class="mt-3">
+          <p>Type: {{ product.type.join(", ") }}</p>
+
+          <p>
+            Rareté:
+            {{ product.rarity }}
+          </p>
+        </div>
       </mat-card-content>
 
       <mat-card-footer class="flex flex-col gap-3">
