@@ -31,12 +31,10 @@ import { MatCardSmImage } from "@angular/material/card";
   ],
   template: `
     <main class="flex justify-center mb-32">
-      <div class="flex flex-col justify-center gap-5">
+      <div *ngIf="product; else errorTemplate" class="flex flex-col justify-center gap-5">
         <div class="flex justify-end w-full">
           <button mat-fab (click)="toggleFavorite()">
-            <mat-icon>{{
-                isFavorite ? "favorite" : "favorite_border"
-              }}</mat-icon>
+            <mat-icon>{{ isFavorite ? "favorite" : "favorite_border" }}</mat-icon>
           </button>
         </div>
         <img
@@ -56,25 +54,15 @@ import { MatCardSmImage } from "@angular/material/card";
           </ul>
         </div>
       </div>
+      <ng-template #errorTemplate>
+        <h2 class="text-3xl m-5 p-5">Produit non trouvé</h2>
+      </ng-template>
     </main>
   `,
   styles: ``,
 })
 export class ProductListDetailComponent implements OnInit {
-  @Input({ required: true }) product: Product = {
-    id: 0,
-    name: "",
-    number: 0,
-    isFavorite: false,
-    imgUrl: "",
-    hp: "",
-    attaque: "",
-    type: [],
-    rarity: "",
-    middlePrice: 0,
-    quantite: 0,
-    evolvesTo: [],
-  };
+  @Input({ required: true }) product: Product | null = null;
   @Output() addItemEvent = new EventEmitter<number>();
 
   productService = inject(ProductService);
@@ -86,10 +74,15 @@ export class ProductListDetailComponent implements OnInit {
     this.route.params.subscribe((params) => {
       this.productService
           .getProductById(params["id"])
-          .subscribe((productData) => {
-            this.product = productData;
-            this.checkFavoriteStatus();
-          });
+          .subscribe(
+              (productData) => {
+                this.product = productData;
+                this.checkFavoriteStatus();
+              },
+              (error) => {
+                this.product = null;
+              }
+          );
     });
   }
 
@@ -98,18 +91,22 @@ export class ProductListDetailComponent implements OnInit {
   }
 
   checkFavoriteStatus() {
-    this.isFavorite = this.favoriteService
-        .getFavorites()
-        .some((p) => p.id === this.product.id);
+    if (this.product) {
+      this.isFavorite = this.favoriteService
+          .getFavorites()
+          .some((p) => p.id === this.product!.id);
+    }
   }
 
   toggleFavorite() {
-    if (this.isFavorite) {
-      this.favoriteService.removeFavorite(this.product);
-    } else {
-      this.favoriteService.addFavorite(this.product);
+    if (this.product) {
+      if (this.isFavorite) {
+        this.favoriteService.removeFavorite(this.product);
+      } else {
+        this.favoriteService.addFavorite(this.product);
+      }
+      this.isFavorite = !this.isFavorite;
+      this.addItemEvent.emit(this.isFavorite ? 1 : -1);
     }
-    this.isFavorite = !this.isFavorite;
-    this.addItemEvent.emit(this.isFavorite ? 1 : -1);
   }
 }
