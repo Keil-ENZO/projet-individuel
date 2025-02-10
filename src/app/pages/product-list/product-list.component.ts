@@ -8,7 +8,10 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatSelectModule } from "@angular/material/select";
 import { ProductCardComponent } from "../../components/product-card/product-card.component";
 import { SearchBarComponent } from "../../components/search-bar/search-bar.component";
+import { FilterByTypePipe } from "../../pipe/filter-by-type.pipe";
 import { SearchPipe } from "../../pipe/search.pipe";
+import { SortByHpPipe } from "../../pipe/sort-by-hp.pipe";
+import { SortByNamePipe } from "../../pipe/sort-by-name.pipe";
 import { Product } from "../../product";
 import { FavoriteService } from "../../service/favorite.service";
 import { ProductService } from "../../service/product.service";
@@ -30,9 +33,6 @@ import { ProductService } from "../../service/product.service";
     SlicePipe,
     MatProgressSpinnerModule,
     MatPaginatorModule,
-    SortByNamePipe,
-    SortByHpPipe,
-    FilterByTypePipe,
   ],
   providers: [SearchPipe, SortByNamePipe, SortByHpPipe, FilterByTypePipe],
   template: `
@@ -40,22 +40,7 @@ import { ProductService } from "../../service/product.service";
       <div class="flex justify-between items-center md:mx-32">
         <app-search-bar (searchEvent)="onSearch($event)"></app-search-bar>
 
-        <div class="flex">
-          <mat-form-field>
-            <mat-label>Filtres</mat-label>
-            <mat-select
-              [(ngModel)]="filter.type"
-              (selectionChange)="onFilterChange()"
-            >
-              <mat-option value="">Tous</mat-option>
-              <mat-option value="Fire">Feu</mat-option>
-              <mat-option value="Water">Eau</mat-option>
-              <mat-option value="Grass">Plante</mat-option>
-              <mat-option value="Electric">Electrique</mat-option>
-              <mat-option value="Psychic">Psy</mat-option>
-              <!-- Ajouter d'autres types ici -->
-            </mat-select>
-          </mat-form-field>
+        <div class="flex gap-3">
           <mat-form-field>
             <mat-label>Trier par</mat-label>
             <mat-select
@@ -68,28 +53,38 @@ import { ProductService } from "../../service/product.service";
               <mat-option value="hpDesc">HP desc</mat-option>
             </mat-select>
           </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Filtres par type</mat-label>
+            <mat-select
+              [(ngModel)]="filter.type"
+              (selectionChange)="onFilterChange()"
+            >
+              <mat-option value="">Tous</mat-option>
+              <mat-option value="Fire">Feu</mat-option>
+              <mat-option value="Water">Eau</mat-option>
+              <mat-option value="Grass">Plante</mat-option>
+              <mat-option value="Electric">Electrique</mat-option>
+              <mat-option value="Psychic">Psy</mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
       </div>
 
-      <div class="flex flex-wrap justify-center">
-        <!-- <div class="flex flex-wrap justify-center gap-5">
-        <mat-spinner *ngIf="filteredProducts.length === 0"></mat-spinner>
+      <div class="flex flex-wrap justify-center gap-5 min-h-screen">
+        <mat-spinner
+          diameter="50"
+          *ngIf="filteredProducts.length === 0"
+        ></mat-spinner>
 
         <app-product-card
-          *ngFor="let p of paginatedProducts; trackBy: trackById"
-          [product]="p"
+          *ngFor="
+            let product of filteredProducts | slice : startIndex : endIndex;
+            trackBy: trackById
+          "
+          [product]="product"
           (addItemEvent)="addItem($event)"
-        ></app-product-card> -->
-
-        <p *ngIf="filteredProducts.length === 0" class="text-gray-500">
-          Aucun résultat trouvé.
-        </p>
-        <div *ngFor="let p of filteredProducts">
-          <app-product-card
-            [product]="p"
-            (addItemEvent)="addItem($event)"
-          ></app-product-card>
-        </div>
+        ></app-product-card>
       </div>
 
       <mat-paginator
