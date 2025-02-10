@@ -1,11 +1,11 @@
-import { NgForOf, NgIf, SlicePipe } from "@angular/common";
+import { CommonModule, NgForOf, NgIf, SlicePipe } from "@angular/common";
 import { Component, EventEmitter, inject, OnInit, Output } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { MatOption } from "@angular/material/core";
-import { MatFormField, MatLabel } from "@angular/material/form-field";
+import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatPaginatorModule, PageEvent } from "@angular/material/paginator";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
-import { MatSelect } from "@angular/material/select";
+import { MatSelectModule } from "@angular/material/select";
 import { ProductCardComponent } from "../../components/product-card/product-card.component";
 import { SearchBarComponent } from "../../components/search-bar/search-bar.component";
 import { SearchPipe } from "../../pipe/search.pipe";
@@ -15,13 +15,14 @@ import { ProductService } from "../../service/product.service";
 
 @Component({
   selector: "app-product-list",
+  standalone: true,
   imports: [
-    MatFormField,
-    MatLabel,
-    MatOption,
-    MatSelect,
-    ProductCardComponent,
+    CommonModule,
     FormsModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatOption,
+    ProductCardComponent,
     SearchBarComponent,
     SearchPipe,
     NgIf,
@@ -29,7 +30,11 @@ import { ProductService } from "../../service/product.service";
     SlicePipe,
     MatProgressSpinnerModule,
     MatPaginatorModule,
+    SortByNamePipe,
+    SortByHpPipe,
+    FilterByTypePipe,
   ],
+  providers: [SearchPipe, SortByNamePipe, SortByHpPipe, FilterByTypePipe],
   template: `
     <main class="mt-20">
       <div class="flex justify-between items-center md:mx-32">
@@ -38,21 +43,53 @@ import { ProductService } from "../../service/product.service";
         <div class="flex">
           <mat-form-field>
             <mat-label>Filtres</mat-label>
-            <mat-select [(ngModel)]="filter">
-              <!-- Filtre a ajouter -->
+            <mat-select
+              [(ngModel)]="filter.type"
+              (selectionChange)="onFilterChange()"
+            >
+              <mat-option value="">Tous</mat-option>
+              <mat-option value="Fire">Feu</mat-option>
+              <mat-option value="Water">Eau</mat-option>
+              <mat-option value="Grass">Plante</mat-option>
+              <mat-option value="Electric">Electrique</mat-option>
+              <mat-option value="Psychic">Psy</mat-option>
+              <!-- Ajouter d'autres types ici -->
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Trier par</mat-label>
+            <mat-select
+              [(ngModel)]="sortOption"
+              (selectionChange)="onSortChange()"
+            >
+              <mat-option value="nameAsc">Nom A-Z</mat-option>
+              <mat-option value="nameDesc">Nom Z-A</mat-option>
+              <mat-option value="hpAsc">HP asc</mat-option>
+              <mat-option value="hpDesc">HP desc</mat-option>
             </mat-select>
           </mat-form-field>
         </div>
       </div>
 
-      <div class="flex flex-wrap justify-center gap-5">
+      <div class="flex flex-wrap justify-center">
+        <!-- <div class="flex flex-wrap justify-center gap-5">
         <mat-spinner *ngIf="filteredProducts.length === 0"></mat-spinner>
 
         <app-product-card
           *ngFor="let p of paginatedProducts; trackBy: trackById"
           [product]="p"
           (addItemEvent)="addItem($event)"
-        ></app-product-card>
+        ></app-product-card> -->
+
+        <p *ngIf="filteredProducts.length === 0" class="text-gray-500">
+          Aucun résultat trouvé.
+        </p>
+        <div *ngFor="let p of filteredProducts">
+          <app-product-card
+            [product]="p"
+            (addItemEvent)="addItem($event)"
+          ></app-product-card>
+        </div>
       </div>
 
       <mat-paginator
@@ -66,12 +103,13 @@ import { ProductService } from "../../service/product.service";
       </mat-paginator>
     </main>
   `,
-  styles: ``,
+  styles: [],
 })
 export class ProductListComponent implements OnInit {
   @Output() searchEvent = new EventEmitter<string>();
 
   filter: { type: string; asc: boolean } = { type: "", asc: true };
+  sortOption: string = "nameAsc";
   countFav = 0;
   SearchContent = "";
   productService = inject(ProductService);
@@ -92,6 +130,16 @@ export class ProductListComponent implements OnInit {
     return searchResults.slice(startIndex, startIndex + this.pageSize);
   }
 
+  constructor(
+    favoriteService: FavoriteService,
+    private searchPipe: SearchPipe,
+    private sortByNamePipe: SortByNamePipe,
+    private sortByHpPipe: SortByHpPipe,
+    private filterByTypePipe: FilterByTypePipe
+  ) {
+    this.favoriteService = favoriteService;
+  }
+
   addItem(event: number) {
     this.countFav += event;
   }
@@ -100,6 +148,8 @@ export class ProductListComponent implements OnInit {
     this.SearchContent = searchTerm;
     this.currentPage = 0;
     this.updatePagination();
+
+    this.applyFilters();
   }
 
   updatePagination() {
@@ -107,20 +157,47 @@ export class ProductListComponent implements OnInit {
     this.endIndex = this.startIndex + this.pageSize;
   }
 
-  constructor(favoriteService: FavoriteService) {
-    this.favoriteService = favoriteService;
+  onFilterChange() {
+    this.applyFilters();
+  }
+
+  onSortChange() {
+    this.applyFilters();
+  }
+
+  applyFilters() {
+    let filtered = this.filterByTypePipe.transform(
+      this.products,
+      this.filter.type
+    );
+    filtered = this.searchPipe.transform(filtered, this.SearchContent);
+    if (this.sortOption === "nameAsc" || this.sortOption === "nameDesc") {
+      filtered = this.sortByNamePipe.transform(
+        filtered,
+        this.sortOption === "nameAsc"
+      );
+    } else if (this.sortOption === "hpAsc" || this.sortOption === "hpDesc") {
+      filtered = this.sortByHpPipe.transform(
+        filtered,
+        this.sortOption === "hpAsc"
+      );
+    }
+    this.filteredProducts = filtered;
   }
 
   ngOnInit(): void {
-    const favorites = this.favoriteService.getFavorites();
+    const favorites = this.favoriteService.getFavorites() || [];
 
     this.productService.getProducts().subscribe({
       next: (products) => {
         this.products = products;
         this.filteredProducts = products;
         products.forEach((product) => {
-          product.isFavorite = favorites.some((fav) => fav.id === product.id);
+          product.isFavorite = favorites.some(
+            (fav) => fav && fav.id === product.id
+          );
         });
+        this.applyFilters();
       },
       error: (err) =>
         console.error("Erreur lors du chargement des données:", err),

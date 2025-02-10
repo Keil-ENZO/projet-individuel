@@ -10,4 +10,5 @@ export interface Product {
   rarity: string;
   middlePrice: number;
   quantite: number;
+  evolvesTo?: string[];
 }

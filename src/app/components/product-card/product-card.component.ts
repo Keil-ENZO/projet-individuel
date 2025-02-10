@@ -1,4 +1,4 @@
-import { CurrencyPipe, DatePipe, UpperCasePipe } from "@angular/common";
+import { CurrencyPipe, UpperCasePipe } from "@angular/common";
 import { Component, EventEmitter, inject, Input, Output } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import {
@@ -21,7 +21,6 @@ import { AddPanierComponent } from "../add-panier/add-panier.component";
   standalone: true,
   imports: [
     UpperCasePipe,
-    DatePipe,
     MatDividerModule,
     MatIconModule,
     MatButtonModule,
@@ -87,7 +86,7 @@ import { AddPanierComponent } from "../add-panier/add-panier.component";
   `,
   styles: [],
 })
-export class ProductCardComponent {
+export class ProductCardComponent implements OnInit {
   @Input({ required: true }) product!: Product;
   @Output() addItemEvent = new EventEmitter<number>();
 
