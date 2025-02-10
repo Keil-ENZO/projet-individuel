@@ -33,12 +33,12 @@ export class PanierService {
     localStorage.setItem("panier", JSON.stringify(panier));
   }
 
-  updateProductQuantity(productId: number, newQuantity: number) {
+  updateProductQuantity(id: string, quantity: number) {
     let panier = JSON.parse(localStorage.getItem("panier") || "[]");
 
-    let product = panier.find((p: any) => p.id === productId);
+    let product = panier.find((p: any) => p.id === id);
     if (product) {
-      product.quantite = newQuantity;
+      product.quantite = quantity;
     }
 
     localStorage.setItem("panier", JSON.stringify(panier));
@@ -47,5 +47,13 @@ export class PanierService {
   clearPanier() {
     localStorage.removeItem("panier");
     localStorage.setItem("panier", "[]");
+  }
+
+  removeProduct(id: string) {
+    let panier = JSON.parse(localStorage.getItem("panier") || "[]");
+
+    panier = panier.filter((p: any) => p.id !== id);
+
+    localStorage.setItem("panier", JSON.stringify(panier));
   }
 }

@@ -1,12 +1,12 @@
 export interface Product {
-  id: number;
+  id: string;
   name: string;
   number: number;
   isFavorite: boolean;
   imgUrl: string;
   hp: string;
   attaque: string;
-  type: Array<string>;
+  type: string[];
   rarity: string;
   middlePrice: number;
   quantite: number;

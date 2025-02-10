@@ -1,4 +1,4 @@
-import { CurrencyPipe, NgIf, UpperCasePipe } from "@angular/common";
+import { CurrencyPipe, NgFor, NgIf, UpperCasePipe } from "@angular/common";
 import {
   Component,
   EventEmitter,
@@ -25,6 +25,7 @@ import { ProductService } from "../../service/product.service";
     AddPanierComponent,
     CurrencyPipe,
     NgIf,
+    NgFor,
     MatCardSmImage,
   ],
   template: `
@@ -74,6 +75,19 @@ import { ProductService } from "../../service/product.service";
             <div class="bg-gray-50 p-3 rounded-md text-center">
               <span class="font-medium">Rareté:</span>
               <span class="ml-2 text-purple-600">{{ product.rarity }}</span>
+            </div>
+            <div
+              *ngIf="product.evolvesTo"
+              class="bg-blue-50 p-3 rounded-md text-center hover:bg-blue-100 transition-colors"
+            >
+              <span class="font-medium">Évolue en:</span>
+              <button
+                *ngFor="let evolution of product.evolvesTo"
+                (click)="searchEvolution(evolution)"
+                class="ml-2 text-blue-600 hover:text-blue-800 hover:underline"
+              >
+                {{ evolution }}
+              </button>
             </div>
           </div>
           <div class="mt-6 w-full">
@@ -133,5 +147,19 @@ export class ProductListDetailComponent implements OnInit {
       this.isFavorite = !this.isFavorite;
       this.addItemEvent.emit(this.isFavorite ? 1 : -1);
     }
+  }
+
+  searchEvolution(evolutionName: string) {
+    this.productService.getProductByName(evolutionName).subscribe(
+      (productData) => {
+        if (productData) {
+          this.product = productData;
+          this.checkFavoriteStatus();
+        }
+      },
+      (error) => {
+        console.error("Erreur lors de la recherche de l'évolution:", error);
+      }
+    );
   }
 }

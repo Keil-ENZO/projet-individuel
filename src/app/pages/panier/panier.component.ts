@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe, UpperCasePipe } from "@angular/common";
+import { CommonModule, UpperCasePipe } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { MatFabButton } from "@angular/material/button";
@@ -11,7 +11,6 @@ import { PanierService } from "../../service/panier.service";
   selector: "app-panier",
   imports: [
     CommonModule,
-    DatePipe,
     MatFabButton,
     MatIcon,
     UpperCasePipe,
@@ -48,7 +47,7 @@ import { PanierService } from "../../service/panier.service";
               <button
                 mat-mini-fab
                 color="primary"
-                (click)="updateQuantity(product, (product.quantite ?? 0) - 1)"
+                (click)="updateQuantity(product, product.quantite - 1)"
               >
                 <mat-icon>remove</mat-icon>
               </button>
@@ -58,13 +57,13 @@ import { PanierService } from "../../service/panier.service";
                 class="p-2 w-14 text-center border border-border rounded-full text-black"
                 type="number"
                 min="1"
-                (change)="updateQuantity(product, product.quantite ?? 0)"
+                (change)="updateQuantity(product, product.quantite)"
               />
 
               <button
                 mat-mini-fab
                 color="primary"
-                (click)="updateQuantity(product, (product.quantite ?? 0) + 1)"
+                (click)="updateQuantity(product, product.quantite + 1)"
               >
                 <mat-icon>add</mat-icon>
               </button>
@@ -118,7 +117,7 @@ export class PanierComponent implements OnInit {
 
   getTotal(): number {
     return this.products.reduce(
-      (total, product) => total + product.middlePrice * (product.quantite ?? 1),
+      (total, product) => total + product.middlePrice * product.quantite,
       0
     );
   }

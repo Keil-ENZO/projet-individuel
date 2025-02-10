@@ -11,33 +11,18 @@ export class ProductService {
   private http = inject(HttpClient);
   private products: Product[] = [];
 
-  // Clé API Pokémon TCG
-  private apiKey = "YOUR_API_KEY"; // Remplacez par votre clé API si nécessaire
+  private apiKey = "YOUR_API_KEY";
 
   getProducts(): Observable<Product[]> {
     const headers = new HttpHeaders().set("X-Api-Key", this.apiKey);
 
     return this.http
       .get<any>(
-        "https://api.pokemontcg.io/v2/cards?q=nationalPokedexNumbers:[1 TO 151]&orderBy=nationalPokedexNumbers&pageSize=151",
-        { headers }
+        "https://api.pokemontcg.io/v2/cards?q=nationalPokedexNumbers:[1 TO 151]&orderBy=nationalPokedexNumbers&pageSize=151"
       )
       .pipe(
         map((response) => {
-          // Transformation des données de l'API en format Product
-          return response.data.map((card: any) => ({
-            id: card.id,
-            name: card.name,
-            number: parseInt(card.number),
-            isFavorite: false,
-            imgUrl: card.images.small,
-            hp: card.hp,
-            attaque: card.attacks ? card.attacks[0]?.name : "Aucune attaque",
-            type: card.types,
-            rarity: card.rarity,
-            middlePrice: card.cardmarket?.prices?.averageSellPrice || 0,
-            quantite: 1,
-          }));
+          return response.data.map((card: any) => this.mapCardToProduct(card));
         })
       );
   }
@@ -45,26 +30,12 @@ export class ProductService {
   getProductById(id: string): Observable<Product> {
     const headers = new HttpHeaders().set("X-Api-Key", this.apiKey);
 
-    return this.http
-      .get<any>(`https://api.pokemontcg.io/v2/cards/${id}`, { headers })
-      .pipe(
-        map((response) => {
-          const card = response.data;
-          return {
-            id: card.id,
-            name: card.name,
-            number: parseInt(card.number),
-            isFavorite: false,
-            imgUrl: card.images.small,
-            hp: card.hp,
-            attaque: card.attacks ? card.attacks[0]?.name : "Aucune attaque",
-            type: card.types,
-            rarity: card.rarity,
-            middlePrice: card.cardmarket?.prices?.averageSellPrice || 0,
-            quantite: 1,
-          };
-        })
-      );
+    return this.http.get<any>(`https://api.pokemontcg.io/v2/cards/${id}`).pipe(
+      map((response) => {
+        const card = response.data;
+        return this.mapCardToProduct(card);
+      })
+    );
   }
 
   makeFavorite(product: Product): Observable<Product> {
@@ -75,5 +46,38 @@ export class ProductService {
       observer.next(product);
       observer.complete();
     });
+  }
+
+  getProductByName(name: string): Observable<Product | null> {
+    const headers = new HttpHeaders().set("X-Api-Key", this.apiKey);
+
+    return this.http
+      .get<any>(`https://api.pokemontcg.io/v2/cards?q=name:"${name}"`, {})
+      .pipe(
+        map((response) => {
+          if (response.data && response.data.length > 0) {
+            const card = response.data[0];
+            return this.mapCardToProduct(card);
+          }
+          return null;
+        })
+      );
+  }
+
+  private mapCardToProduct(card: any): Product {
+    return {
+      id: card.id,
+      name: card.name,
+      number: parseInt(card.number),
+      isFavorite: false,
+      imgUrl: card.images.small,
+      hp: card.hp,
+      attaque: card.attacks ? card.attacks[0]?.name : "Aucune attaque",
+      type: card.types,
+      rarity: card.rarity,
+      middlePrice: card.cardmarket?.prices?.averageSellPrice || 0,
+      quantite: 1,
+      evolvesTo: card.evolvesTo || [],
+    };
   }
 }

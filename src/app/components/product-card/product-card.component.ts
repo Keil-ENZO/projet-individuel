@@ -42,8 +42,7 @@ import { AddPanierComponent } from "../add-panier/add-panier.component";
   template: `
     <mat-card
       appearance="outlined"
-      class="m-3 p-5 flex flex-col justify-between h-full hover:shadow-xl transition-shadow duration-300 bg-white rounded-xl cursor-pointer"
-      (click)="navigateToProduct(product.id)"
+      class="m-3 p-5 flex flex-col justify-between h-full hover:shadow-xl transition-shadow duration-300 bg-white rounded-xl"
     >
       <div class="flex justify-end w-full">
         <button
@@ -51,18 +50,19 @@ import { AddPanierComponent } from "../add-panier/add-panier.component";
           (click)="toggleFavorite()"
           class="hover:scale-110 transition-transform"
         >
-          <mat-icon [class.text-red-500]="isFavorite">
+          <mat-icon [class.text-black]="isFavorite">
             {{ isFavorite ? "favorite" : "favorite_border" }}
           </mat-icon>
         </button>
       </div>
 
       <mat-card-header
-        class="flex flex-col-reverse justify-center items-center"
+        class="flex flex-col-reverse justify-center items-center "
       >
         <img
           [src]="product.imgUrl"
-          class="w-[200px] h-[280px] rounded-lg hover:scale-105 transition-transform duration-300 shadow-md"
+          class="w-[200px] h-[280px] rounded-lg hover:scale-105 transition-transform duration-300 shadow-md cursor-pointer"
+          (click)="navigateToProduct(product.id)"
         />
       </mat-card-header>
 
@@ -124,7 +124,7 @@ export class ProductCardComponent implements OnInit {
     this.addItemEvent.emit(this.isFavorite ? 1 : -1);
   }
 
-  navigateToProduct(id: number) {
+  navigateToProduct(id: string) {
     this.router.navigate(["/product", id]);
   }
 }
