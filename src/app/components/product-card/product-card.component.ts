@@ -1,5 +1,5 @@
-import { CurrencyPipe, DatePipe, UpperCasePipe } from "@angular/common";
-import { Component, EventEmitter, inject, Input, Output } from "@angular/core";
+import { CurrencyPipe, UpperCasePipe } from "@angular/common";
+import { Component, EventEmitter, inject, Input, OnInit, Output } from "@angular/core";
 import { MatButtonModule } from "@angular/material/button";
 import {
   MatCard,
@@ -21,7 +21,6 @@ import { AddPanierComponent } from "../add-panier/add-panier.component";
   standalone: true,
   imports: [
     UpperCasePipe,
-    DatePipe,
     MatDividerModule,
     MatIconModule,
     MatButtonModule,
@@ -35,8 +34,8 @@ import { AddPanierComponent } from "../add-panier/add-panier.component";
   ],
   template: `
     <mat-card
-      appearance="outlined"
-      class="m-3 p-5 flex flex-col justify-between items-center w-[350px] h-[500px]"
+        appearance="outlined"
+        class="m-3 p-5 flex flex-col justify-between items-center w-[350px] h-[500px]"
     >
       <div class="flex justify-end w-full">
         <button mat-fab (click)="toggleFavorite()">
@@ -45,26 +44,26 @@ import { AddPanierComponent } from "../add-panier/add-panier.component";
       </div>
 
       <mat-card-header
-        class="flex flex-col-reverse justify-center items-center"
+          class="flex flex-col-reverse justify-center items-center"
       >
-        <img [src]="product.imgUrl" class="w-[200px] h-[280px]" />
-        <mat-card-title>{{ product.name | uppercase }}</mat-card-title>
+        <img [src]="product?.imgUrl" class="w-[200px] h-[280px]" />
+        <mat-card-title>{{ product?.name | uppercase }}</mat-card-title>
       </mat-card-header>
 
       <mat-card-content class="text-center">
-        <p>HP: {{ product.hp }}</p>
-        <p>Attaque: {{ product.attaque }}</p>
-        <p>Type: {{ product.type.join(", ") }}</p>
-        <p>Rareté: {{ product.rarity }}</p>
-        <p>Prix: {{ product.middlePrice | currency : "EUR" }}</p>
+        <p>HP: {{ product?.hp }}</p>
+        <p>Attaque: {{ product?.attaque }}</p>
+        <p>Type: {{ product?.type?.join(", ") }}</p>
+        <p>Rareté: {{ product?.rarity }}</p>
+        <p>Prix: {{ product?.middlePrice | currency : "EUR" }}</p>
       </mat-card-content>
 
       <mat-card-footer class="flex flex-col gap-3">
         <button
-          mat-fab
-          extended
-          color="primary"
-          (click)="navigateToProduct(product.id)"
+            mat-fab
+            extended
+            color="primary"
+            (click)="navigateToProduct(product?.id!)"
         >
           <mat-icon>visibility</mat-icon>
           Voir le produit
@@ -76,7 +75,7 @@ import { AddPanierComponent } from "../add-panier/add-panier.component";
   `,
   styles: [],
 })
-export class ProductCardComponent {
+export class ProductCardComponent implements OnInit {
   @Input({ required: true }) product!: Product;
   @Output() addItemEvent = new EventEmitter<number>();
 
@@ -87,11 +86,8 @@ export class ProductCardComponent {
   isFavorite = false;
 
   ngOnInit() {
-    if (this.product) {
-      this.isFavorite = this.favoriteService
-        .getFavorites()
-        .some((p) => p.id === this.product.id);
-    }
+    const favorites = this.favoriteService.getFavorites() || [];
+    this.isFavorite = favorites.some((fav) => fav && fav.id === this.product.id);
   }
 
   toggleFavorite() {

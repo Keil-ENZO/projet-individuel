@@ -128,14 +128,14 @@ export class ProductListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const favorites = this.favoriteService.getFavorites();
+    const favorites = this.favoriteService.getFavorites() || [];
 
     this.productService.getProducts().subscribe({
       next: (products) => {
         this.products = products;
         this.filteredProducts = products;
         products.forEach((product) => {
-          product.isFavorite = favorites.some((fav) => fav.id === product.id);
+          product.isFavorite = favorites.some((fav) => fav && fav.id === product.id);
         });
         this.applyFilters();
       },
