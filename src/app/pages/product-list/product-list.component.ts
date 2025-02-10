@@ -36,8 +36,8 @@ import { ProductService } from "../../service/product.service";
   ],
   providers: [SearchPipe, SortByNamePipe, SortByHpPipe, FilterByTypePipe],
   template: `
-    <main class="mt-20">
-      <div class="flex justify-between items-center md:mx-32">
+    <main class="mt-20 min-h-screen">
+      <div class="flex justify-between items-center md:mx-32 ">
         <app-search-bar (searchEvent)="onSearch($event)"></app-search-bar>
 
         <div class="flex gap-3">
@@ -71,11 +71,17 @@ import { ProductService } from "../../service/product.service";
         </div>
       </div>
 
-      <div class="flex flex-wrap justify-center gap-5 min-h-screen">
-        <mat-spinner
-          diameter="50"
-          *ngIf="filteredProducts.length === 0"
-        ></mat-spinner>
+      <div class="flex flex-wrap justify-center gap-5 ">
+        <mat-spinner diameter="50" *ngIf="isLoading"></mat-spinner>
+
+        <div
+          *ngIf="!isLoading && filteredProducts.length === 0"
+          class="text-center p-8"
+        >
+          <p class="text-xl text-gray-600">
+            Aucun résultat trouvé pour votre recherche
+          </p>
+        </div>
 
         <app-product-card
           *ngFor="
@@ -115,6 +121,7 @@ export class ProductListComponent implements OnInit {
   currentPage = 0;
   startIndex = 0;
   endIndex = 10;
+  isLoading = true;
 
   get paginatedProducts(): Product[] {
     const startIndex = this.currentPage * this.pageSize;
@@ -193,9 +200,12 @@ export class ProductListComponent implements OnInit {
           );
         });
         this.applyFilters();
+        this.isLoading = false;
       },
-      error: (err) =>
-        console.error("Erreur lors du chargement des données:", err),
+      error: (err) => {
+        console.error("Erreur lors du chargement des données:", err);
+        this.isLoading = false;
+      },
     });
   }
 

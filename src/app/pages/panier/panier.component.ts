@@ -18,13 +18,13 @@ import { PanierService } from "../../service/panier.service";
     FormClientComponent,
   ],
   template: `
-    <main class="flex items-center justify-around">
+    <main class="flex mt-20 justify-around min-h-screen">
       @if (products.length === 0) {
-      <h2 class="text-3xl m-5 p-5">Aucun produit ajouter a votre panier</h2>
+      <p class="text-xl text-gray-600">Aucun produit ajouter a votre panier</p>
 
       } @else {
       <div>
-        <h2 class="text-3xl m-5 p-5">Votre panier:</h2>
+        <h2 class="text-xl text-gray-600">Votre panier:</h2>
 
         <div>
           <div
